@@ -8,12 +8,11 @@ pub struct Solution {}
     why we visit the map the way we do here
   - the main difference between this one and
     question 490 is that we need to
-    - exhaust the paths that can lead to the dest
+    - exhaust all possible paths that can lead to the dest
     - report back the shortest path among them
-  - we enhance the queue a bit to store not only
-    the coordinates of the node but also the steps
-    required to take from the start to the visiting
-    node
+  - we enhance the queue a bit to store the steps,
+    moves required from the start to the node we
+    are visiting, as well besides the coordinates.
 */
 
 impl Solution {
@@ -25,6 +24,11 @@ impl Solution {
     let rows = maze.len();
     let cols = maze[0].len();
     let mut visited = vec![vec![false; cols]; rows];
+    /*
+      - we don't mark it as visited in the bfs method
+        as that function is for visiting the neighbors
+    */
+    visited[start.0][start.1] = true;
     Self::bfs(start, dest, maze, &mut visited)
   }
 
@@ -35,12 +39,19 @@ impl Solution {
     visited: &mut Vec<Vec<bool>>,
   ) -> i32 {
     /*
-      - right, left, down, up
+      down, up, right, left
     */
     let neighbors = vec![(1, 0), (-1, 0), (0, 1), (0, -1)];
     let mut queue: VecDeque<((usize, usize), usize)> = VecDeque::from([(*node, 0)]);
     let rows = maze.len();
     let cols = maze[0].len();
+
+    /*
+       - you need to be able to stop at the destination
+       - in question 499 the dest is a hole and you can't
+         roll past it; this is the main difference between
+         these two questions
+    */
     let (dest_x, dest_y) = dest;
 
     let mut min_distance = usize::MAX;
@@ -94,6 +105,8 @@ impl Solution {
             /*
               - we need to deduct one move back due to
                 how we design the while loop
+                - we have a extra move in the while
+                  loop when it exits
             */
             let next_x = (next_x_check - x_move) as usize;
             let next_y = (next_y_check - y_move) as usize;
